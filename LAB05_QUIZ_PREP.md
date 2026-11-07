@@ -1,4 +1,136 @@
-# Lab 5 Linked List — Quiz Preparation
+# 🔗 Lab 5: Linked Lists — Your Quiz Survival Guide
+
+> **The short version:** the professor says Lab 5 is the base, but the main focus is likely an **operation on a linked list**. The exact question is not known.
+>
+> **بالمصري:** المطلوب غالباً تعمل operation على الـ linked list. أهم حاجة تفهم الأسهم بتتغير إزاي، مش تحفظ الكود بس.
+
+## 🧭 Where do I start?
+
+| If you have… | Do this |
+|---|---|
+| **10 minutes** | Read the visual crash course immediately below, then memorize the edge-case checklist. |
+| **30 minutes** | Also practice [pointer diagrams](#4-the-pointer-diagrams-you-must-be-able-to-draw) and [common bugs](#9-common-bugs-to-recognize-instantly). |
+| **1 hour or more** | Try the [mock quiz](#10-mock-quiz--try-before-checking-answers), then practice the [extra operations](#6-additional-likely-operation-scenarios). |
+
+**Don't start by memorizing the whole class.** First understand the four pictures below. The full code is folded away in section 3 when you need it.
+
+---
+
+## 🚀 Visual crash course: the 4 moves
+
+### First: what are we looking at?
+
+```text
+head → [ 10 | next ] → [ 20 | next ] → [ 30 | None ]
+          value              value              value
+```
+
+- A **node** is a box with a `value` and a link called `next`.
+- `head` tells us where the list starts; `None` means there is no next node.
+- `self._size` counts nodes. Add 1 when you insert; subtract 1 when you delete.
+- **مهم:** `node = node.next` moves *your pointer*. It does **not** delete anything.
+
+### 🟦 Move 1 — Walk through every node
+
+```text
+head → [10] → [20] → [30] → None
+         ↑
+       node  → move right one step at a time
+```
+
+```python
+node = self.head
+while node is not None:
+    print(node.value)     # use this node
+    node = node.next      # go to the next node
+```
+
+Use this pattern to **search, count, sum, or print**. It works even if the list is empty.
+
+### 🟩 Move 2 — Insert a node
+
+**Example:** put `15` after `10`.
+
+```text
+BEFORE:   head → [10] ─────────→ [20] → None
+                    new [15]     (not connected yet)
+
+STEP 1:   new.next = node.next    # 15 points to 20
+STEP 2:   node.next = new         # 10 points to 15
+
+AFTER:    head → [10] → [15] → [20] → None
+```
+
+```python
+# node already points to 10
+new = Node(15)
+new.next = node.next
+node.next = new
+self._size += 1
+```
+
+**Why that order?** If you overwrite `node.next` first without saving the old link, you can lose the rest of the list. For insertion at the **head**, use `new.next = self.head`, then `self.head = new`.
+
+### 🟥 Move 3 — Delete a node
+
+**Example:** delete `20`, where `prev` points to `10`.
+
+```text
+BEFORE:   head → [10] → [20] → [30] → None
+                  ↑
+                 prev
+
+          prev.next = prev.next.next
+
+AFTER:    head → [10] ───────→ [30] → None
+```
+
+```python
+prev.next = prev.next.next
+self._size -= 1
+```
+
+**Special case:** To delete the *first* node, there is no previous node: use `self.head = self.head.next`. Check that `self.head` is not `None` first.
+
+### 🟨 Move 4 — Reverse the links
+
+```text
+START:    None    1 → 2 → 3 → None
+          prev    node
+
+STEP 1:   None ← 1    2 → 3 → None
+                 prev  node
+
+STEP 2:   None ← 1 ← 2    3 → None
+                      prev  node
+
+DONE:     head → 3 → 2 → 1 → None
+```
+
+```python
+prev = None
+node = self.head
+while node is not None:
+    following = node.next  # 1. save the rest
+    node.next = prev       # 2. reverse the arrow
+    prev = node            # 3. move prev forward
+    node = following       # 4. move node forward
+self.head = prev
+```
+
+🧠 **Memory phrase:** save next → flip arrow → move both → change head. Size stays the same.
+
+### ✅ Before you hand in any operation
+
+```text
+[ ] Empty list?       [ ] One node?         [ ] Head changes?
+[ ] Tail changes?     [ ] Value missing?    [ ] Duplicates?
+[ ] _size correct?    [ ] Return / exception matches the question?
+```
+
+---
+
+## 📚 Full study guide
 
 ## 1. What the professor's message means
 
@@ -64,6 +196,9 @@ The second loop does not itself process the last node inside the loop. Use it to
 ## 3. Lab 5 core operations — reference implementation
 
 The following class uses the **exact Lab 5 conventions**: singly linked, no tail or sentinel, zero-based positions, and `_size` maintained. It is standalone, so paste it into a `.py` file to practice. The `__iter__` is included so `list(ll)` works.
+
+<details>
+<summary><strong>▶ Open the complete runnable reference class</strong> (read the pictures first)</summary>
 
 ```python
 class Node:
@@ -169,6 +304,8 @@ class LinkedList:
             node = following
         self.head = prev
 ```
+
+</details>
 
 ### Contracts to memorize
 
@@ -490,6 +627,9 @@ Assume the core class above. Do not look below the line until you finish.
 11. Implement deletion of the last node. What happens on empty and singleton lists?
 12. What does a tail reference improve? Can it alone make deleting the last node O(1) in a singly linked list?
 
+<details>
+<summary><strong>▶ Reveal mock quiz answers</strong></summary>
+
 ### Answers
 
 1. `[1, 9, 3, 5]`; pop returns `0`; length 4; `find(3)` = 2.
@@ -504,6 +644,8 @@ Assume the core class above. Do not look below the line until you finish.
 10. 3, the second middle; empty raises `ValueError` under that example's contract.
 11. See `pop_back` in section 6: empty raises `IndexError`, singleton delegates to `pop_front`, otherwise find second-to-last.
 12. Append becomes O(1); deleting the last is still O(n) without a predecessor link.
+
+</details>
 
 ## 11. Practice workflow
 
